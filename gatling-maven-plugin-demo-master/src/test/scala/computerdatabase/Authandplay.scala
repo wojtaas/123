@@ -6,7 +6,7 @@ import io.gatling.http.Predef._
 
 import scala.concurrent.duration._
 
-class testuj  extends Simulation {
+class Authandplay  extends Simulation {
 
 
   val httpConf = http
