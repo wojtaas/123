@@ -21,35 +21,39 @@ class Authandplay  extends Simulation {
 
     .exec(http("AuthenticeRequest")
     .get("?fn=authenticate")
-    .queryParam("org", "Demo")
-    .queryParam("gameid", "7331")
-    .queryParam("channel", "pc")
-    .queryParam("currency", "EUR")
-    .check(jsonPath("$.data.sessid").saveAs("UserSessionID")))
+    .queryParamMap(Map("org" -> "Demo",
+      "gameid" -> "7331",
+      "channel" -> "pc",
+      "currency" -> "EUR"))
+      .check(jsonPath("$.data.sessid").saveAs("UserSessionID")))
 
     .asLongAs(
       session => session("WonAmount").asOption[String].map(myValue => !myValue.contains("0")).getOrElse[Boolean](true)) {
       exec(http("PlayRequest")
         .get("?fn=play")
-        .queryParam("currency", "EUR")
-        .queryParam("gameid", "7316")
-        .queryParam("sessid", "${UserSessionID}")
-        .queryParam("amount", "100.0")
-        .queryParam("coin", "4.0")
-        .check(jsonPath("$.data.wager.bets[0].eventdata.wonCoins").saveAs("WonCoinsNumber"))
+        .queryParamMap(Map(
+          "currency"-> "EUR",
+          "gameid" -> "7316",
+          "sessid" -> "${UserSessionID}",
+          "amount" -> "100.0",
+          "coin" -> "4.0"))
+        .check(jsonPath("$.data.wager.status").saveAs("Status"))
         .check(jsonPath("$.data.wager.wagerid").saveAs("WagerID")))
 
-        .doIf(session => "0" != session("WonCoinsNumber").as[String]) {
+        .doIf(
+          session => session("Status").as[String].contains("Pending"))
+        {
           exec(http("CollectRequest")
             .get("?fn=play")
-            .queryParam("currency", "EUR")
-            .queryParam("gameid", "7316")
-            .queryParam("sessid", "${UserSessionID}")
-            .queryParam("amount", "0")
-            .queryParam("wagerid", "${WagerID}")
-            .queryParam("betid", "1")
-            .queryParam("step", "2")
-            .queryParam("cmd", "C")
+            .queryParamMap(Map(
+              "currency" -> "EUR",
+              "gameid" -> "7316",
+              "sessid" -> "${UserSessionID}",
+              "amount" -> "0",
+              "wagerid" -> "${WagerID}",
+              "betid" -> "1",
+              "step" -> "2",
+              "cmd" -> "C"))
             .check(jsonPath("$.data.wager.bets[0].wonamount").saveAs("WonAmount")))
         }
     }
