@@ -1,6 +1,3 @@
-package computerdatabase
-
-
 import io.gatling.core.Predef.{StringBody, _}
 import io.gatling.http.Predef._
 
@@ -10,7 +7,7 @@ class Authandplay  extends Simulation {
 
 
   val httpConf = http
-    .baseURL("https://pff.yggdrasilgaming.com/game.web/service").inferHtmlResources() // Here is the root for all relative URLs
+    .baseURL("https://pff.yggdrasilgaming.com/").inferHtmlResources() // Here is the root for all relative URLs
     .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8") // Here are the common headers
     .acceptEncodingHeader("gzip, deflate")
     .acceptLanguageHeader("en-US,en;q=0.5")
@@ -20,7 +17,7 @@ class Authandplay  extends Simulation {
   val scn = scenario("Ygg_auth_and_play_until_win")
 
     .exec(http("AuthenticeRequest")
-    .get("?fn=authenticate")
+    .get("game.web/service?fn=authenticate")
     .queryParamMap(Map("org" -> "Demo",
       "gameid" -> "7331",
       "channel" -> "pc",
@@ -30,7 +27,7 @@ class Authandplay  extends Simulation {
     .asLongAs(
       session => session("WonAmount").asOption[String].map(myValue => !myValue.contains("0")).getOrElse[Boolean](true)) {
       exec(http("PlayRequest")
-        .get("?fn=play")
+        .get("game.web/service?fn=play")
         .queryParamMap(Map(
           "currency"-> "EUR",
           "gameid" -> "7316",
@@ -44,7 +41,7 @@ class Authandplay  extends Simulation {
           session => session("Status").as[String].contains("Pending"))
         {
           exec(http("CollectRequest")
-            .get("?fn=play")
+            .get("game.web/service?fn=play")
             .queryParamMap(Map(
               "currency" -> "EUR",
               "gameid" -> "7316",
@@ -57,6 +54,6 @@ class Authandplay  extends Simulation {
             .check(jsonPath("$.data.wager.bets[0].wonamount").saveAs("WonAmount")))
         }
     }
-  val httpProtocol = http.extraInfoExtractor(extraInfo => List(extraInfo.response.bodyLength))
+
   setUp(scn.inject(atOnceUsers(1)).protocols(httpConf))
 }
