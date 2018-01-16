@@ -18,11 +18,11 @@ class cheattest extends BaseTestWithBlock {
 
   testCase(name = "Should not return errors") {
     exec(AuthenticateRequest.authenticate())
-      .exec(playAndSmallWin())
+      .exec(tryplaywithcheats())
   }
 
 
-  def playAndSmallWin() = {
+  def tryplaywithcheats() = {
     exec(session => {
       val gameId = session("gameId").as[String]
       val coin = getCoin(gameId = gameId, org = org, currency = currency)
