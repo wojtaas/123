@@ -1,18 +1,12 @@
 package functional.general
 
-import conf.GameSettingsFeeder
 import io.gatling.core.Predef._
-import io.gatling.core.feeder.RecordSeqFeederBuilder
-import io.gatling.core.structure.ChainBuilder
 import io.gatling.http.Predef._
-import io.gatling.http.check.HttpCheck
 import main._
 import main.helpers.custom.BaseTestUtils._
 import main.requests.AuthenticateRequest
-import main.requests.Functions._
 import main.requests.PlayRequest._
 
-import scala.concurrent.duration._
 
 
 class cheattest extends BaseTestWithBlock {
